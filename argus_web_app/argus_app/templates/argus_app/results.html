@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Argus-Wand</title>
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'argus_app/site.css' %}" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+        <script defer src="https://use.fontawesome.com/releases/v5.14.0/js/all.js"></script>
+    </head>
+    <body>
+        <div id="title">
+            <h1>Argus-Wand</h1>
+        </div>      
+        <div class="columns" style="margin-top: 0.5%;">
+            <div class="column is-two-fifths">
+                <div id="log">
+                    <p>Loading points...</p>
+                    <p>{{ camPts }}</p>
+                </div>
+                <div id="resultFiles">
+                    <p style="margin-top: 15vh;">No results to download yet</p>
+                </div>
+            </div>
+            <div class="column" id="graph">
+                <p style="margin-top: 35vh;">Your graphed output will appear here.</p>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Argus-Wand</title>
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'argus_app/site.css' %}" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+        <script defer src="https://use.fontawesome.com/releases/v5.14.0/js/all.js"></script>
+    </head>
+    <body>
+        <!--<span class="message">Hello, there {{ name }}!</span> It's {{ date | date:'l, d F, Y' }} at {{ date | time:'H:i:s' }}.-->
+        <div id="title">
+            <h1>Argus-Wand</h1>
+        </div>     
+        <form action={% url 'run' %} method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="columns" style="margin-top: 0.5%;">
+                <div class="column" style="margin-left: 3%;">    
+                    <div id="file-js1">
+                        <div class="buttons">
+                            <label class="label" style="margin-right: 5%;">Input Cameras: </label>
+                                <button class="button is-ghost is-small">
+                                    <input class="file-input" type="file" name="camsFile">
+                                    <span class="file-icon">
+                                        <i class="fas fa-upload"></i>
+                                    </span>
+                                    Open
+                                </button>                   
+                            <button class="button is-ghost is-small" id="clear1">Clear</button>
+                        </div>            
+                        <input class="input is-small" id="file-n" name="cams" type="text">           
+                    </div> 
+                    <script>
+                        const fileInput = document.querySelector('#file-js1 input[type=file]');
+                        fileInput.onchange = () => {
+                        if (fileInput.files.length > 0) {
+                            const fileName = document.querySelector('#file-js1 #file-n');
+                            fileName.value = fileInput.files[0].name;
+                        }
+                        }
+                        const clear = document.querySelector('#file-js1 #clear1');
+                        clear.onclick = () => {
+                            const fileName = document.querySelector('#file-js1 #file-n');
+                            fileName.value = "";
+                        }
+                    </script>   
+                    <div id="file-js2">
+                        <div class="buttons" style="margin-top: 10%;">
+                            <label class="label" style="margin-right: 5%;">Input Paired Points: </label>
+                            <button class="button is-ghost is-small">
+                                <input class="file-input" type="file" name="pptsFile">
+                                <span class="file-icon">
+                                    <i class="fas fa-upload"></i>
+                                </span>
+                                Open
+                            </button>
+                            <button class="button is-ghost is-small" id="clear2">Clear</button>
+                        </div>
+                        <input class="input is-small" id="file-n2" name="ppts" type="text"> 
+                    </div>                   
+                    <script>
+                        const fileInput2 = document.querySelector('#file-js2 input[type=file]');
+                        fileInput2.onchange = () => {
+                        if (fileInput2.files.length > 0) {
+                            const fileName2 = document.querySelector('#file-js2 #file-n2');
+                            fileName2.value = fileInput2.files[0].name;
+                        }
+                        }
+                        const clear2 = document.querySelector('#file-js2 #clear2');
+                        clear2.onclick = () => {
+                            const fileName2 = document.querySelector('#file-js2 #file-n2');
+                            fileName2.value = "";
+                        }
+                    </script>   
+                    <div id="file-js3">
+                        <div class="buttons" style="margin-top: 10%">
+                            <label class="label" style="margin-right: 5%;">Input Unpaired Points: </label>
+                            <button class="button is-ghost is-small">
+                                <input class="file-input" type="file" name="upptsFile">
+                                <span class="file-icon">
+                                    <i class="fas fa-upload"></i>
+                                </span>
+                                Open
+                            </button>
+                            <button class="button is-ghost is-small" id="clear3">Clear</button>
+                        </div>
+                        <input class="input is-small" id="file-n3" type="text" name="uppts">
+                    </div>
+                    <script>
+                        const fileInput3 = document.querySelector('#file-js3 input[type=file]');
+                        fileInput3.onchange = () => {
+                        if (fileInput3.files.length > 0) {
+                            const fileName3 = document.querySelector('#file-js3 #file-n3');
+                            fileName3.value = fileInput3.files[0].name;
+                        }
+                        }
+                        const clear3 = document.querySelector('#file-js3 #clear3');
+                        clear3.onclick = () => {
+                            const fileName3 = document.querySelector('#file-js3 #file-n3');
+                            fileName3.value = "";
+                        }
+                    </script>    
+                    <div class="buttons" style="margin-top: 10%">
+                        <label class="label" style="margin-right: 5%;">Output Tag and Location: </label>
+                        <button class="button is-ghost is-small">
+                            <input class="file-input" type="file" name="outputFile">
+                            Specify
+                        </button>
+                    </div>
+                    <input class="input is-small" type="text" name="output"> 
+                    <label class="checkbox">
+                        <input type="checkbox" name="writeLog">
+                        Write log
+                    </label>
+                    <br>
+                    <br>
+                    <button class="button is-dark" type="submit">Go</button>       
+                </div>
+                <div class="column">
+                    
+                    <div id="options">
+                        <h2>Options</h2>
+                        <label class="label" style="margin-right: 3%;">Scale (m):</label>
+                        <input class="input is-small" type="text" id="scale" name="scale">         
+                        <label class="label">Intrinsics:</label>
+                        <div class="select">
+                            <select name="sel1">
+                            <option>Optimize none</option>
+                            <option>Optimize focal length</option>
+                            <option>Optimize focal length and principal point</option>
+                            </select>
+                        </div>
+                        <label class="label" style="margin-top: 3%;">Distortion:</label>
+                        <div class="select">
+                            <select name="sel2">
+                            <option>Optimize none</option>
+                            <option>Optimize r2</option>
+                            <option>Optimize r2, r4</option>
+                            <option>Optimize all distortion coefficients</option>
+                            </select>
+                        </div>
+                        <label class="checkbox">
+                            <input type="checkbox" name="outliers">
+                            Report on outliers
+                        </label>
+                        <label class="checkbox">
+                            <input type="checkbox" name="refCam">
+                            Choose reference camera
+                        </label>
+                        <label class="checkbox">
+                            <input type="checkbox" name="camProfs">
+                            Output camera profiles
+                        </label>
+                    </div>
+                    <div id="file-js4">
+                        <div class="buttons" style="margin-top: 3%">
+                            <label class="label" style="margin-right: 5%;">Input Reference Points: </label>
+                            <button class="button is-ghost is-small">
+                                <input class="file-input" type="file" name="rptsFile">
+                                <span class="file-icon">
+                                    <i class="fas fa-upload"></i>
+                                </span>
+                                Open
+                            </button>
+                            <button class="button is-ghost is-small" id="clear4">Clear</button>
+                        </div>
+                        <input class="input is-small" id="file-n4" type="text" name="rpts">  
+                    </div>
+                    <script>
+                        const fileInput4 = document.querySelector('#file-js4 input[type=file]');
+                        fileInput4.onchange = () => {
+                        if (fileInput4.files.length > 0) {
+                            const fileName4 = document.querySelector('#file-js4 #file-n4');
+                            fileName4.value = fileInput4.files[0].name;
+                        }
+                        }
+                        const clear4 = document.querySelector('#file-js4 #clear4');
+                        clear4.onclick = () => {
+                            const fileName4 = document.querySelector('#file-js4 #file-n4');
+                            fileName4.value = "";
+                        }
+                    </script>    
+                    <label class="label" style="margin-top: 3%;">Reference Point Type:</label>
+                    <div class="select">
+                        <select name="rptsType">
+                        <option>Axis points</option>
+                        <option>Gravity</option>
+                        <option>Plane</option>
+                        </select>
+                    </div>  
+                    <label class="label" style="margin-top: 3%;">Recording Frequency (Hz):</label>
+                    <input class="input is-small" type="text" id="scale2" name="recFreq">
+                </div>
+            </div>
+        </form>
+    </body>
+</html>
