@@ -5,10 +5,8 @@ from django.http import HttpResponse
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from .models import *
-# from .argusWand import *
 
 def home(request):
-    #return HttpResponse("Hello, Django!")
     return render(
         request,
         'argus_app/index.html',
@@ -16,9 +14,6 @@ def home(request):
 
 def run(request):
     form = request.POST
-    #if request.method == 'POST' and request.FILES['camsFile']:
-    
-    # if !isinstance(form.scale, int) && !isinstance(form.scale, float):
 
     hasCams = False
     hasPts = False
@@ -59,9 +54,7 @@ def run(request):
         uploaded_rpts_url = fs.url(rptsFileName)
     else:
         rptsFile = None
-
     
-    #args = [camsFile, form['sel1'], form['sel2'], pptsFile, upptsFile, form['scale'], rptsFile, form['rptsType'], form['recFreq']]
     args = {
         'cams': camsFile,
         'intrinsics_opt': form['sel1'],
@@ -74,11 +67,7 @@ def run(request):
         'recording_frequency': form['recFreq'],
     }
 
-    #print(read_file(filename))
-    #print(read_file(args[3].name))
     print(request.POST)
-
-    #argus-wand.go(args)
 
     return render(
         request,
