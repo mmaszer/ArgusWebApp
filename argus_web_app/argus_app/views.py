@@ -5,6 +5,8 @@ from django.http import HttpResponse
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from .models import *
+from .argusWand import go
+from .graphers import *
 
 def home(request):
     return render(
@@ -17,13 +19,14 @@ def run(request):
 
     hasCams = False
     hasPts = False
+    hasRef = False
 
     fs = FileSystemStorage()
+
     # save camera file
     if (len(form['cams']) > 0):        
         camsFile = request.FILES['camsFile']
         camsFileName = fs.save(camsFile.name, camsFile)
-        uploaded_cams_url = fs.url(camsFileName)
         hasCams = True
     else:
         print('no cams')
@@ -54,7 +57,7 @@ def run(request):
         uploaded_rpts_url = fs.url(rptsFileName)
     else:
         rptsFile = None
-    
+
     args = {
         'cams': camsFile,
         'intrinsics_opt': form['sel1'],
@@ -67,16 +70,89 @@ def run(request):
         'recording_frequency': form['recFreq'],
     }
 
-    print(request.POST)
+    
 
-    return render(
-        request,
-        'argus_app/results.html',
-        { 
-        'args': args,
-        'camPts': read_file(camsFile.name)
-        },
-    )
+    # decide what output to render depending on files given
+    case1 = (pptsFile != None) and (upptsFile != None)
+    case2 = (pptsFile != None) and (upptsFile == None)
+    case3 = (pptsFile == None) and (upptsFile != None)
+    case4 = case1 and (rptsFile != None)
+    case5 = case1 and (rptsFile == None)
+    case6 = case2 and (rptsFile != None)
+    case7 = case2 and (rptsFile == None)
+    case8 = case3 and (rptsFile != None)
+    case9 = case3 and (rptsFile == None)
+
+    if (case1 or case5):
+        return render(
+            request,
+            'argus_app/results.html',
+            { 
+            'args': args,
+            'camPts': read_file(camsFile.name),
+            'pPts': read_file(pptsFile.name),
+            'upPts': read_file(upptsFile.name)
+            },
+        )
+    elif (case2 or case7):
+        return render(
+            request,
+            'argus_app/results.html',
+            { 
+            'args': args,
+            'camPts': read_file(camsFile.name),
+            'pPts': read_file(pptsFile.name),
+            },
+        )
+    elif (case3 or case9):
+        return render(
+            request,
+            'argus_app/results.html',
+            { 
+            'args': args,
+            'camPts': read_file(camsFile.name),
+            'upPts': read_file(upptsFile.name)
+            },
+        )
+    elif (case4):
+        return render(
+            request,
+            'argus_app/results.html',
+            { 
+            'args': args,
+            'camPts': read_file(camsFile.name),
+            'pPts': read_file(pptsFile.name),
+            'upPts': read_file(upptsFile.name),
+            'rpts': read_file(rptsFile.name)
+            },
+        )
+    elif (case6):
+        return render(
+            request,
+            'argus_app/results.html',
+            { 
+            'args': args,
+            'camPts': read_file(camsFile.name),
+            'pPts': read_file(pptsFile.name),
+            'rpts': read_file(rptsFile.name)
+            },
+        )
+    elif (case8):
+        return render(
+            request,
+            'argus_app/results.html',
+            { 
+            'args': args,
+            'camPts': read_file(camsFile.name),
+            'upPts': read_file(upptsFile.name),
+            'rpts': read_file(rptsFile.name)
+            },
+        )
+    else:
+        return HttpResponse("Missing cameras or points")
+        # exit function
+
+    
 
 def read_file(request):
     path = 'media/' + request
@@ -84,9 +160,3 @@ def read_file(request):
     file_content = f.read()
     f.close()
     return file_content
-
-def hello_there(request):
-    return render(
-        request,
-        'argus_app/index.html',
-    )
