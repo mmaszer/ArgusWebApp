@@ -4,6 +4,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
+#import mpl_toolkits
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.patches import FancyArrowPatch
 from mpl_toolkits.mplot3d import proj3d
@@ -53,9 +54,11 @@ class wandGrapher():
         self.recording_frequency = recording_frequency
 
         self.cams = []
-
+        # cams is getting passed in as items not rows
         for c in cams:
+            print("c ", c)
             self.cams.append([c[u] for u in [0, 1, 2, 5, 6, 7, 8, 9]])
+
 
     # finds the average distance between two point sets
     # used to find the scale defined by the wand
@@ -520,3 +523,4 @@ class wandGrapher():
                 print('Could not graph!\n' + e)
 
         return outliers, ptsi
+
