@@ -18,18 +18,31 @@ from six.moves import map
 from six.moves import range
 
 #import argus_gui
-from .sbaDriver import *
+#import sbaDriver
+from .sbaDriver import sbaArgusDriver
 
+from django.core.files.storage import FileSystemStorage
+
+def read_file(request):
+    path = 'media/' + request
+    f = open(path, 'r')
+    file_content = f.read()
+    f.close()
+    return file_content
 
 # gets data from CSVs. Expects a header.
 def parseCSVs(csv):
-    if csv.split('.')[-1] == 'csv':
-        dataf = pandas.read_csv(csv, index_col=False)
-        dataf = dataf.dropna(how='all') # remove nan rows
-        dataf = dataf.reset_index(drop=True) # reset indices
-        return dataf.values
+    print(csv)
+    #csv = read_file(csv.name)
+    #csv = open(csv)
+    path = 'media/' + csv.name
+    #if csv.split('.')[-1] == 'csv':
+    dataf = pandas.read_csv(path, index_col=False)
+    dataf = dataf.dropna(how='all') # remove nan rows
+    dataf = dataf.reset_index(drop=True) # reset indices
+    return dataf.values
     # else check if we have sparse data representation
-    elif csv.split('.')[-1] == 'tsv':
+    '''elif csv.split('.')[-1] == 'tsv':
         fo = open(csv)
         # expect a header
         line = fo.readline()
@@ -44,14 +57,14 @@ def parseCSVs(csv):
             val = list(map(float, line.split('\t')))
             ret[int(val[0]) - 1, int(val[1]) - 1] = val[2]
             line = fo.readline()
-        return ret
+        return ret'''
 
 
 def preform_wand_caliration(args, unpaired_points, paried_points, ref, cams):
-    scale = float(args.scale)
+    scale = float(args['scale'])
     display = args.graph
     # print 'Graphing: {0}'.format(display)
-    mode = args.intrinsics_opt + args.distortion_opt
+    mode = args['intrinsics_opt'] + args['distortion_opt']
     
     # Output files location and tag
     name = args.output_name
@@ -88,63 +101,26 @@ def preform_wand_caliration(args, unpaired_points, paried_points, ref, cams):
 
 #if __name__ == '__main__':
 def go(args):
-    parser = argparse.ArgumentParser(description="Argus-Wand command line interface")
-
-    parser.add_argument("cam_profile",
-                        help="Text file with intrinsic and extrinsic estimates for each camera row by row. Values must be separated by spaces. Column specification: fx px py AR s r2 r4 t1 t2 r6")
-    parser.add_argument("--paired_points", default='',
-                        help="CSV file with paired UV pixel coordinates Has 4*(number of cameras) columns")
-
-    parser.add_argument("--unpaired_points", default='',
-                        help="CSV file with unpaired UV pixel coordinates. Has a multiple of 2*(number of cameras) columns")
-
-    parser.add_argument("--reference_points", default='',
-                        help="CSV file with three points marked in pixel coordinates. One line, and has 6*(number of cameras) columns")
-
-    parser.add_argument("--scale", default='1',
-                        help="Measured distance between paired points used to define a scale")
-
-    parser.add_argument("--intrinsics_opt",
-                        help="0, 1, or 2 camera intrinsics to optimize (focal length and principal point)", default="0")
-
-    parser.add_argument("--distortion_opt",
-                        help="0, 1, 2, or 3. Specifies the mode of distortion optimization. (Optimize none, optimize r2, optimize r2 and r4, or optimize all distortion coefficients",
-                        default="0")
-
-    parser.add_argument("output_name", help="Output filename for points and optimized camera profile")
-
-    parser.add_argument("-g", "--graph", action="store_true",
-                        help="Graph points and camera positions with Matplotlib. Must have X11 running.")
-    parser.add_argument("--outliers", action="store_true",
-                        help="Report on outliers and ask to re-calibrate without them")
-    parser.add_argument("--tmp", default="None",
-                        help="Temporary directory to pass results between obects. If none is specified one will be created. Directory will be destroyed uppon completion, use with caution!")
-    parser.add_argument("--output_camera_profiles", action="store_true",
-                        help="Use this argument to output camera profiles for use with other Argus programs")
-    parser.add_argument("--choose_reference", action="store_true",
-                        help="Use this argument to have Argus-Wand optimize the choice of reference camera by counting the number of triangulatable points for each choice")
-    parser.add_argument("--reference_type",
-                        help="Type of reference points provided: Axis points (default) 1-4 points specifying the origin and axes, Gravity - a gravitational acceleration recording, Plane - 3+ points specifying the X-Y plane", default="Axis points")
-    parser.add_argument("--recording_frequency", help="Recording frequency in Hz for gravitational acceleration determination", default="100")
-                        
-    args = parser.parse_args()
+    
+    #args = parser.parse_args()
     print('Loading points...')
     sys.stdout.flush()
 
     # Get paired points from a CSV file as an array, no index column, with or without header
-    if args.paired_points:
-        paried_points = parseCSVs(args.paired_points)
+    if args['paired_points']:
+        paried_points = parseCSVs(args['paired_points'])
     else:
         paried_points = None
     # Get unpaired points 
-    if args.unpaired_points:
-        unpaired_points = parseCSVs(args.unpaired_points)
+    if args['unpaired_points']:
+        unpaired_points = parseCSVs(args['unpaired_points'])
     else:
         unpaired_points = None
         
     # Make sure we have a camera profile TXT document
     try:
-        cams = np.loadtxt(args.cam_profile)
+        path = 'media/' + args['cams'].name
+        cams = np.loadtxt(path)
     except Exception as e:
         print(e)
         print('Could not load camera profile! Make sure it is formatted according to the documentation.')
@@ -156,9 +132,9 @@ def go(args):
     # Three - origin, +x-axis, +y-axis
     # Four - origin, +x-axis, +y-axis, +z-axis
     # More - gravity or surface reference points
-    if args.reference_points:
+    if args['reference_points']:
         print('Loading reference points')
-        ref = pandas.read_csv(args.reference_points, index_col=False).values
+        ref = pandas.read_csv(args['reference_points'], index_col=False).values
         
         # trim to the rows with data, inclusive of any interior rows of all NaNs
         # changed on 2020-06-18 by Ty Hedrick
