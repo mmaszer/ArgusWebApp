@@ -48,6 +48,7 @@ def run(request):
         uploaded_uppts_url = fs.url(upptsFileName)
         hasPts = True
     else:
+        upptsFileName = None
         upptsFile = None
    
     # save ref points file
@@ -56,6 +57,7 @@ def run(request):
         rptsFileName = fs.save(rptsFile.name, rptsFile)
         uploaded_rpts_url = fs.url(rptsFileName)
     else:
+        rptsFileName = None
         rptsFile = None
 
     args = {
@@ -70,7 +72,17 @@ def run(request):
         'recording_frequency': form['recFreq'],
     }
 
+    print(read_file(camsFileName))
     
+    # basically need to initialize a wandgrapher with vals from the form and pass that as the argument into "go"
+    # obj = wandGrapher(key, nppts, nuppts, scale, ref, indices, ncams, npframes) 
+    obj = wandGrapher(None, read_file(pptsFileName), read_file(upptsFileName), form['scale'], read_file(rptsFileName), None, read_file(camsFileName), None, cams = read_file(camsFileName)) 
+
+    print(request.POST)
+
+    # TODO: check if there is enough info to run
+    if (hasCams and hasPts):
+        go(args)
 
     # decide what output to render depending on files given
     case1 = (pptsFile != None) and (upptsFile != None)
@@ -151,12 +163,12 @@ def run(request):
     else:
         return HttpResponse("Missing cameras or points")
         # exit function
-
     
 
 def read_file(request):
-    path = 'media/' + request
-    f = open(path, 'r')
-    file_content = f.read()
-    f.close()
-    return file_content
+    if (request != None):
+        path = 'media/' + request
+        f = open(path, 'r')
+        file_content = f.read()
+        f.close()
+        return file_content
