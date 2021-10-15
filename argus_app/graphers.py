@@ -5,6 +5,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 #import mpl_toolkits
+from argus_gui import DLTtoCamXYZ
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.patches import FancyArrowPatch
 from mpl_toolkits.mplot3d import proj3d
@@ -370,8 +371,8 @@ class wandGrapher():
         xyzs = np.loadtxt(self.temp + '/' + self.key + '_np.txt')
         cam = np.loadtxt(self.temp + '/' + self.key + '_cn.txt')
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
+        # fig = plt.figure()
+        # ax = fig.add_subplot(111, projection='3d')
         # ax.set_aspect('equal') # doesn't look good for 3D
         # main trick for getting axes to be equal (getting equal scaling) is to create "bounding box" points that set
         # upper and lower axis limits to the same values on all three axes (https://stackoverflow.com/questions/13685386/matplotlib-equal-unit-length-with-equal-aspect-ratio-z-axis-is-not-equal-to)
@@ -458,42 +459,42 @@ class wandGrapher():
 
         # plot unpaired points
         # ax.scatter(x,y,z)
-        if self.nuppts != 0:
-            up = xyzs[self.nppts:, :]
-            if self.display:
-                x = up[:, 0]
-                y = up[:, 1]
-                z = up[:, 2]
-                ax.scatter(x, y, z, c='c', label='Unpaired points')
-        else:
-            up = None
+        # if self.nuppts != 0:
+        #     up = xyzs[self.nppts:, :]
+        #     if self.display:
+        #         x = up[:, 0]
+        #         y = up[:, 1]
+        #         z = up[:, 2]
+                # ax.scatter(x, y, z, c='c', label='Unpaired points')
+        # else:
+        #     up = None
 
         # plot the paired points if there are any. draw a line between each paired set.
-        if self.nppts != 0 and self.display:
-            ax.set_xlabel('X (Meters)')
-            ax.set_ylabel('Y (Meters)')
-            ax.set_zlabel('Z (Meters)')
-            for k in range(len(pairedSet1)):
-                _ = np.vstack((pairedSet1[k], pairedSet2[k]))
-                x = _[:, 0]
-                y = _[:, 1]
-                z = _[:, 2]
-                if k == 0:
-                    ax.plot(x, y, z, c='m', label='Paired points')
-                else:
-                    ax.plot(x, y, z, c='m')
+        # if self.nppts != 0 and self.display:
+        #     ax.set_xlabel('X (Meters)')
+        #     ax.set_ylabel('Y (Meters)')
+        #     ax.set_zlabel('Z (Meters)')
+        #     for k in range(len(pairedSet1)):
+        #         _ = np.vstack((pairedSet1[k], pairedSet2[k]))
+        #         x = _[:, 0]
+        #         y = _[:, 1]
+        #         z = _[:, 2]
+        #         if k == 0:
+        #             ax.plot(x, y, z, c='m', label='Paired points')
+        #         else:
+        #             ax.plot(x, y, z, c='m')
 
         # plot the reference points if there are any
-        if self.nRef != 0 and self.display:
-            ax.scatter(ref[:, 0], ref[:, 1], ref[:, 2], c='r', label='Reference points')
+        # if self.nRef != 0 and self.display:
+        #     ax.scatter(ref[:, 0], ref[:, 1], ref[:, 2], c='r', label='Reference points')
 
         # get the camera locations as expressed in the DLT coefficients
         camXYZ = DLTtoCamXYZ(dlts)
-        ax.scatter(camXYZ[:, 0], camXYZ[:, 1], camXYZ[:, 2], c='g', label='Camera positions')
+        # ax.scatter(camXYZ[:, 0], camXYZ[:, 1], camXYZ[:, 2], c='g', label='Camera positions')
 
         # add the legend, auto-generated from label='' values for each plot entry
-        if self.display:
-            ax.legend()
+        # if self.display:
+        #     ax.legend()
 
         self.outputDLT(dlts, errs)
 
@@ -505,22 +506,22 @@ class wandGrapher():
 
         sys.stdout.flush()
 
-        outputter = WandOutputter(self.name, self.ncams, self.npframes, p1, p2, self.indices['paired'], up,
-                                  self.indices['unpaired'], self.nupframes)
-        outputter.output()
+        # outputter = WandOutputter(self.name, self.ncams, self.npframes, p1, p2, self.indices['paired'], up,
+        #                           self.indices['unpaired'], self.nupframes)
+        # outputter.output()
 
-        if self.display:
-            try:
-                if sys.platform == 'linux2':
-                    # have to block on Linux, looking for fix...
-                    plt.show()
-                else:
-                    if self.report:
-                        plt.show(block=False)
-                    else:
-                        plt.show()
-            except Exception as e:
-                print('Could not graph!\n' + e)
+        # if self.display:
+        #     try:
+        #         if sys.platform == 'linux2':
+        #             # have to block on Linux, looking for fix...
+        #             plt.show()
+        #         else:
+        #             if self.report:
+        #                 plt.show(block=False)
+        #             else:
+        #                 plt.show()
+        #     except Exception as e:
+        #         print('Could not graph!\n' + e)
 
-        return outliers, ptsi
+        return xyzs, (outliers, ptsi)
 

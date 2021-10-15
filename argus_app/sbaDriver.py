@@ -352,7 +352,7 @@ class sbaArgusDriver():
             if self.report:
                 root = Tk()
 
-        outliers, index = grapher.graph()
+        xyzs, outliers_and_indicies = grapher.graph()
         # outliers = sorted(outliers)
 
         nps = np.loadtxt(self.name + '-sba-profile.txt')
@@ -364,132 +364,134 @@ class sbaArgusDriver():
                 l = np.delete(l, [5] + list(np.arange(11, 18)), axis=0)
                 np.savetxt(self.name + '-camera-' + str(self.order[k] + 1) + '-profile.txt', np.asarray([l]),
                            fmt='%-1.5g')
+        return xyzs, outliers_and_indicies
 
-        def redo():
-            if self.display and self.report:
-                root.destroy()
-            self.pts = np.delete(self.pts, index, axis=0)
+        # def redo():
+        #     if self.display and self.report:
+        #         root.destroy()
+        #     self.pts = np.delete(self.pts, index, axis=0)
+        #
+        #     # print 'Index length: {0}'.format(len(index))
+        #
+        #     # a = 0
+        #     tmp = self.indices['paired']
+        #     # print 'Length of all paired indices: {0}'.format(len(tmp[0]) + len(tmp[1]))
+        #     if tmp is not None:
+        #         for k in range(len(outliers)):
+        #             if '(set 1)' in outliers[k][2]:
+        #                 # print 'removed outlier'
+        #                 try:
+        #                     tmp[0].remove(outliers[k][0] - 1)
+        #                     # a += 1
+        #                     self.nppts -= 1
+        #                 except:
+        #                     pass
+        #             elif '(set 2)' in outliers[k][2]:
+        #                 # print 'removed outlier'
+        #                 try:
+        #                     tmp[1].remove(outliers[k][0] - 1)
+        #                     # a += 1
+        #                     self.nppts -= 1
+        #                 except:
+        #                     pass
+        #
+        #     # print 'Number of paired indices removed: {0}'.format(a)
+        #     # print len(self.pts)
+        #     self.indices['paired'] = copy.copy(tmp)
+        #     # print len(self.indices['paired'][0]) + len(self.indices['paired'][0])
+        #
+        #     tmp = copy.copy(self.indices['unpaired'])
+        #     if tmp is not None:
+        #         for k in range(len(outliers)):
+        #             if 'Unpaired' in outliers[k][2]:
+        #                 try:
+        #                     tmp[outliers[k][-1]].remove(outliers[k][0] - 1)
+        #                     self.nuppts -= 1
+        #                 except:
+        #                     pass
+        #
+        #     self.indices['unpaired'] = tmp
+        #
+        #     print('\nRunning again with outliers removed...')
+        #
+        #     self.fix()
 
-            # print 'Index length: {0}'.format(len(index))
-
-            # a = 0
-            tmp = self.indices['paired']
-            # print 'Length of all paired indices: {0}'.format(len(tmp[0]) + len(tmp[1]))
-            if tmp is not None:
-                for k in range(len(outliers)):
-                    if '(set 1)' in outliers[k][2]:
-                        # print 'removed outlier'
-                        try:
-                            tmp[0].remove(outliers[k][0] - 1)
-                            # a += 1
-                            self.nppts -= 1
-                        except:
-                            pass
-                    elif '(set 2)' in outliers[k][2]:
-                        # print 'removed outlier'
-                        try:
-                            tmp[1].remove(outliers[k][0] - 1)
-                            # a += 1
-                            self.nppts -= 1
-                        except:
-                            pass
-
-            # print 'Number of paired indices removed: {0}'.format(a)
-            # print len(self.pts)
-            self.indices['paired'] = copy.copy(tmp)
-            # print len(self.indices['paired'][0]) + len(self.indices['paired'][0])
-
-            tmp = copy.copy(self.indices['unpaired'])
-            if tmp is not None:
-                for k in range(len(outliers)):
-                    if 'Unpaired' in outliers[k][2]:
-                        try:
-                            tmp[outliers[k][-1]].remove(outliers[k][0] - 1)
-                            self.nuppts -= 1
-                        except:
-                            pass
-
-            self.indices['unpaired'] = tmp
-
-            print('\nRunning again with outliers removed...')
-
-            self.fix()
-
-        def exitLoop():
-            if self.display and self.report:
-                root.destroy()
+        # def exitLoop():
+        #     if self.display and self.report:
+        #         root.destroy()
             # sys.exit()
 
-        if self.report:
-            if len(outliers) == 0:
-                root.withdraw()
-                six.moves.tkinter_messagebox.showwarning(
-                    "No outliers",
-                    "No outliers were found! Exiting..."
-                )
-                root.mainloop()
-            else:
-                table = Texttable()
-                table.header(['Frame', 'Undistorted Pixel Coordinate', 'Point Type', 'Error'])
-                for k in range(len(outliers)):
-                    if len(outliers[k]) == 4:
-                        table.add_row(outliers[k])
-                    else:
-                        table.add_row(outliers[k][:-1])
+        # if self.report:
+        #     if len(outliers) == 0:
+        #         root.withdraw()
+        #         six.moves.tkinter_messagebox.showwarning(
+        #             "No outliers",
+        #             "No outliers were found! Exiting..."
+        #         )
+        #         root.mainloop()
+        #     else:
+        #         table = Texttable()
+        #         table.header(['Frame', 'Undistorted Pixel Coordinate', 'Point Type', 'Error'])
+        #         for k in range(len(outliers)):
+        #             if len(outliers[k]) == 4:
+        #                 table.add_row(outliers[k])
+        #             else:
+        #                 table.add_row(outliers[k][:-1])
+        #
+        #         if self.display:
+        #             root.resizable(width=FALSE, height=FALSE)
+        #
+        #             root.wm_title("Argus - Outlier report")
+        #
+        #             Label(root, text='Found ' + str(len(outliers)) + ' possible outliers:', font="-weight bold").grid(
+        #                 row=0, column=0, sticky=W, padx=10, pady=10)
+        #
+        #             scrollbar = Scrollbar(root, width=20)
+        #             log = Text(root, yscrollcommand=scrollbar.set, bg="white", fg="black")
+        #             log.grid(row=1, column=0, padx=10, pady=5)
+        #             scrollbar.grid(row=1, column=1, padx=5, pady=5, sticky=NS)
+        #
+        #             scrollbar.configure(command=log.yview)
+        #
+        #             # Label(root, text = 'Try again without these outliers?').grid(row = 2,
+        #             # column = 0, padx = 10, pady = 10, sticky = W)
+        #
+        #             yes = Button(root, text='Try Again', command=redo, padx=5, pady=5)
+        #             yes.grid(row=2, column=0, padx=5, pady=10)
+        #
+        #             no = Button(root, text='Happy with calibration', command=exitLoop, padx=5, pady=5)
+        #             no.grid(row=2, column=0, padx=50, sticky=W)
+        #
+        #             log.insert(END, table.draw())
+        #             """
+        #             f = mplfig.Figure(figsize=(5,4), dpi=100)
+        #             a = f.add_subplot(111)
+        #
+        #             x = np.zeros(len(outliers))
+        #             y = np.zeros(len(outliers))
+        #
+        #             for k in range(len(outliers)):
+        #                 x[k] = outliers[k][1][0]
+        #                 y[k] = outliers[k][1][1]
+        #
+        #             a.plot(x, y, 'ro')
+        #
+        #             canvas = tkagg.FigureCanvasTkAgg(f, master=root)
+        #             canvas.show()
+        #             canvas.get_tk_widget().grid(row = 1, column = 2, padx = 5, pady = 5)
+        #             """
+        #             root.mainloop()
+        #         else:
+        #             print('Found ' + str(len(outliers)) + ' possible outliers:')
+        #             print(table.draw())
+        #             go_again = input('Try again without these outliers? (Y/n): ')
+        #             if go_again == 'y' or go_again == 'Y':
+        #                 redo()
+        #             else:
+        #                 exitLoop()
+        # else:
+        #     exitLoop()
 
-                if self.display:
-                    root.resizable(width=FALSE, height=FALSE)
-
-                    root.wm_title("Argus - Outlier report")
-
-                    Label(root, text='Found ' + str(len(outliers)) + ' possible outliers:', font="-weight bold").grid(
-                        row=0, column=0, sticky=W, padx=10, pady=10)
-
-                    scrollbar = Scrollbar(root, width=20)
-                    log = Text(root, yscrollcommand=scrollbar.set, bg="white", fg="black")
-                    log.grid(row=1, column=0, padx=10, pady=5)
-                    scrollbar.grid(row=1, column=1, padx=5, pady=5, sticky=NS)
-
-                    scrollbar.configure(command=log.yview)
-
-                    # Label(root, text = 'Try again without these outliers?').grid(row = 2,
-                    # column = 0, padx = 10, pady = 10, sticky = W)
-
-                    yes = Button(root, text='Try Again', command=redo, padx=5, pady=5)
-                    yes.grid(row=2, column=0, padx=5, pady=10)
-
-                    no = Button(root, text='Happy with calibration', command=exitLoop, padx=5, pady=5)
-                    no.grid(row=2, column=0, padx=50, sticky=W)
-
-                    log.insert(END, table.draw())
-                    """
-                    f = mplfig.Figure(figsize=(5,4), dpi=100)
-                    a = f.add_subplot(111)
-
-                    x = np.zeros(len(outliers))
-                    y = np.zeros(len(outliers))
-
-                    for k in range(len(outliers)):
-                        x[k] = outliers[k][1][0]
-                        y[k] = outliers[k][1][1]
-
-                    a.plot(x, y, 'ro')
-
-                    canvas = tkagg.FigureCanvasTkAgg(f, master=root)
-                    canvas.show()
-                    canvas.get_tk_widget().grid(row = 1, column = 2, padx = 5, pady = 5)
-                    """
-                    root.mainloop()
-                else:
-                    print('Found ' + str(len(outliers)) + ' possible outliers:')
-                    print(table.draw())
-                    go_again = input('Try again without these outliers? (Y/n): ')
-                    if go_again == 'y' or go_again == 'Y':
-                        redo()
-                    else:
-                        exitLoop()
-        else:
-            exitLoop()
 
 
 # gets data from CSVs. Expects a header.

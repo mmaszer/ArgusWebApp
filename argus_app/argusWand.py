@@ -62,19 +62,21 @@ def parseCSVs(csv):
 
 def preform_wand_caliration(args, unpaired_points, paried_points, ref, cams):
     scale = float(args['scale'])
-    display = args.graph
     # print 'Graphing: {0}'.format(display)
     mode = args['intrinsics_opt'] + args['distortion_opt']
     
     # Output files location and tag
-    name = args.output_name
+    # TODO: REMOVE THIS
+    name = "TODO"
     # temporary file name
-    if args.tmp != "None":
-        tmp = args.tmp
-    else:
-        tmp = tempfile.mkdtemp()
+    # if args.tmp != "None":
+    #     tmp = args.tmp
+    # else:
+    tmp = tempfile.mkdtemp()
     # boolean for outlier analysis at the end
-    rep = args.outliers
+    # rep = args.outliers
+    # TODO Change when implementing outliers
+    rep = True
     if paried_points is not None:
         if paried_points.shape[1] != 4 * cams.shape[0]:
             print('Incorrect shape of paired points! Paired points file must have 4*(number of cameras) columns')
@@ -84,7 +86,10 @@ def preform_wand_caliration(args, unpaired_points, paried_points, ref, cams):
             print(
                 'Incorrect shape of unpaired points! Unpaired points must have a multiple of 2*(number of cameras) columns')
             sys.exit()
-    oCPs = args.output_camera_profiles
+
+    # TODO CHANGE WHEN IMPLEMENTING OUTPUT CAMERAS
+    # oCPs = args['output_camera_profiles']
+    oCPs = False
 
     if (paried_points is None) and (unpaired_points is not None):
         print(unpaired_points)
@@ -92,11 +97,13 @@ def preform_wand_caliration(args, unpaired_points, paried_points, ref, cams):
         print(paried_points[0][0])
         print(unpaired_points)
 
-    driver = sbaArgusDriver(paried_points, unpaired_points, cams, display, scale, mode, ref, name, tmp, rep,
-                                      oCPs, args.choose_reference, args.reference_type, args.recording_frequency)
-    driver.fix()
+    # TODO: Change when implementing
+    driver = sbaArgusDriver(paried_points, unpaired_points, cams, scale=scale, modeString=mode, ref=ref, name=name, temp=tmp, report=rep, outputCPs=oCPs)
+                                      # oCPs, args.choose_reference, args.reference_type, args.recording_frequency)
+    xyzs, outliers_and_indicies = driver.fix()
 
     shutil.rmtree(tmp)
+    return xyzs, outliers_and_indicies
 
 
 #if __name__ == '__main__':
@@ -119,7 +126,7 @@ def go(args):
         
     # Make sure we have a camera profile TXT document
     try:
-        path = 'media/' + args['cams'].name
+        path = args['cams']
         cams = np.loadtxt(path)
     except Exception as e:
         print(e)
@@ -166,8 +173,8 @@ def go(args):
         # take out camera number column, image width and height, then add in skew
         cams = np.delete(cams, [0, 2, 3], 1)
         cams = np.insert(cams, 4, 0., axis=1)
-        preform_wand_caliration(args, unpaired_points, paried_points, ref, cams)
-
+        xyzs, outliers_and_indicies = preform_wand_caliration(args, unpaired_points, paried_points, ref, cams)
+        return xyzs, outliers_and_indicies
     else:
         # Omnidirectional camera model
         models = []
