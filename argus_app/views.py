@@ -7,6 +7,7 @@ from django.core.files.storage import FileSystemStorage
 from .models import *
 from .argusWand import go
 from .graphers import *
+from argus_web_app import settings
 
 
 def home(request):
@@ -27,8 +28,9 @@ def run(request):
 
     # save camera file
     if form['cams']:
-        cams_file = request.FILES['camsFile']
-        cams_file_name = fs.save(cams_file.name, cams_file)
+        file = request.FILES['camsFile']
+        cams_file_name = fs.save(file.name, file)
+        cams_file_path = f"{settings.MEDIA_ROOT}/{cams_file_name}"
         has_cams = True
     else:
         print('no cams')
@@ -38,7 +40,7 @@ def run(request):
     if form['ppts']:
         ppts_file = request.FILES['pptsFile']
         ppts_file_name = fs.save(ppts_file.name, ppts_file)
-        uploaded_ppts_url = fs.url(ppts_file_name)
+        ppts_file_path = f"{settings.MEDIA_ROOT}/{ppts_file_name}"
         has_pts = True
     else:
         ppts_file = None
@@ -63,7 +65,7 @@ def run(request):
         rpts_file = None
 
     args = {
-        'cams': cams_file,
+        'cams': cams_file_path,
         'intrinsics_opt': form['sel1'],
         'distortion_opt': form['sel2'],
         'paired_points': ppts_file,
@@ -75,18 +77,13 @@ def run(request):
     }
 
     print(read_file(cams_file_name))
-    
-    # basically need to initialize a wandgrapher with vals from the form and pass that as the argument into "go"
-    # obj = wandGrapher(key, nppts, nuppts, scale, ref, indices, ncams, npframes) 
     # obj = wandGrapher(None, read_file(ppts_file_name), read_file(uppts_file_name), form['scale'], read_file(rpts_file_name), None, read_file(cams_file_name), None, cams = read_file(cams_file_name))
-    obj = wandGrapher(None, None, None, None, None, None, None, None, cams = read_file(cams_file_name))
-
     print(request.POST)
 
     # TODO: check if there is enough info to run
     if has_cams and has_pts:
-        go(args)
-
+        xyzs, outliers_and_indicies = go(args)
+        print("here")
     # decide what output to render depending on files given
     case1 = (ppts_file != None) and (uppts_file != None)
     case2 = (ppts_file != None) and (uppts_file == None)
