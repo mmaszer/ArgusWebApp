@@ -5,7 +5,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 #import mpl_toolkits
-from argus_gui import DLTtoCamXYZ
+# from argus_gui import DLTtoCamXYZ
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.patches import FancyArrowPatch
 from mpl_toolkits.mplot3d import proj3d
@@ -28,6 +28,17 @@ import random
 from .colors import *
 import subprocess
 from .tools import *
+
+# calculate camera xyz position from DLT coefficients
+def DLTtoCamXYZ(dlts):
+    camXYZ = []
+    for i in range(len(dlts)):
+        m1 = np.hstack([dlts[i, 0:3], dlts[i, 4:7], dlts[i, 8:11]]).T
+        m2 = np.vstack([-dlts[i, 3], -dlts[i, 7], -1])
+        camXYZ.append(np.dot(np.linalg.inv(m1), m2))
+
+    camXYZa = np.array(camXYZ)
+    return camXYZa
 
 # takes unpaired and paired points along with other information about the scene, and manipulates the data for outputting and graphing in 3D
 class wandGrapher():

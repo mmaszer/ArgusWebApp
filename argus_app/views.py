@@ -7,8 +7,16 @@ from django.core.files.storage import FileSystemStorage
 from .models import *
 from .argusWand import go
 from .graphers import *
+from .webGrapher import *
 from argus_web_app import settings
 
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import io
+import base64
+import urllib
+import csv
 
 def home(request):
     return render(
@@ -82,8 +90,47 @@ def run(request):
 
     # TODO: check if there is enough info to run
     if has_cams and has_pts:
+        # lets try writing these to a file and outputting with a download button
         xyzs, outliers_and_indicies = go(args)
         print("here")
+    
+        # save points to file
+        pointsfile = "static/xyzs.csv"
+        with open(pointsfile, 'w') as csvfile: 
+            csvwriter = csv.writer(csvfile) 
+            csvwriter.writerows(xyzs)
+
+        pointsfile = "static/outliers.csv"
+        with open(pointsfile, 'w') as csvfile: 
+            csvwriter = csv.writer(csvfile) 
+            csvwriter.writerows(outliers_and_indicies)
+        
+        # do own graphing
+        xs = xyzs[:,0]
+        ys = xyzs[:,1]
+        zs = xyzs[:,2]
+
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
+
+        ax.scatter(xs, ys, zs)
+
+        plt.savefig("static/output.png")
+        plt.close()
+
+        return render(
+            request,
+            'argus_app/results.html',
+            { 
+            'args': args,
+            'camPts': read_file(file.name),
+            'pPts': read_file(ppts_file.name),
+            'upPts': read_file(uppts_file.name),
+            'xyzs': xyzs,
+            'o_a_i': outliers_and_indicies,
+            },
+        )
+
     # decide what output to render depending on files given
     case1 = (ppts_file != None) and (uppts_file != None)
     case2 = (ppts_file != None) and (uppts_file == None)
@@ -101,7 +148,7 @@ def run(request):
             'argus_app/results.html',
             { 
             'args': args,
-            'camPts': read_file(cams_file.name),
+            'camPts': read_file(file.name),
             'pPts': read_file(ppts_file.name),
             'upPts': read_file(uppts_file.name)
             },
@@ -112,7 +159,7 @@ def run(request):
             'argus_app/results.html',
             { 
             'args': args,
-            'camPts': read_file(cams_file.name),
+            'camPts': read_file(file.name),
             'pPts': read_file(ppts_file.name),
             },
         )
@@ -122,7 +169,7 @@ def run(request):
             'argus_app/results.html',
             { 
             'args': args,
-            'camPts': read_file(cams_file.name),
+            'camPts': read_file(file.name),
             'upPts': read_file(uppts_file.name)
             },
         )
@@ -132,7 +179,7 @@ def run(request):
             'argus_app/results.html',
             { 
             'args': args,
-            'camPts': read_file(cams_file.name),
+            'camPts': read_file(file.name),
             'pPts': read_file(ppts_file.name),
             'upPts': read_file(uppts_file.name),
             'rpts': read_file(rpts_file.name)
@@ -144,7 +191,7 @@ def run(request):
             'argus_app/results.html',
             { 
             'args': args,
-            'camPts': read_file(cams_file.name),
+            'camPts': read_file(file.name),
             'pPts': read_file(ppts_file.name),
             'rpts': read_file(rpts_file.name)
             },
@@ -155,7 +202,7 @@ def run(request):
             'argus_app/results.html',
             { 
             'args': args,
-            'camPts': read_file(cams_file.name),
+            'camPts': read_file(file.name),
             'upPts': read_file(uppts_file.name),
             'rpts': read_file(rpts_file.name)
             },

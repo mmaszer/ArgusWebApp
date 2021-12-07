@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import os
+import sys
 
 import pkg_resources
 from six.moves import input
@@ -30,10 +31,10 @@ from argus_app.graphers import wandGrapher
 import numpy as np
 import pandas
 from texttable import *
-import six.moves.tkinter_messagebox
-from six.moves.tkinter import *
+#import six.moves.tkinter_messagebox
+#from six.moves.tkinter import *
 import copy
-import six.moves.tkinter_filedialog
+#import six.moves.tkinter_filedialog
 # import matplotlib.backends.backend_tkagg as tkagg
 from scipy.sparse import lil_matrix
 import string
@@ -349,8 +350,8 @@ class sbaArgusDriver():
         if self.display:
             print('Graphing and writing output files...')
             sys.stdout.flush()
-            if self.report:
-                root = Tk()
+            #if self.report:
+                #root = Tk()
 
         xyzs, outliers_and_indicies = grapher.graph()
         # outliers = sorted(outliers)

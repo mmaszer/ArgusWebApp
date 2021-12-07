@@ -16,14 +16,38 @@
             <div class="column is-two-fifths">
                 <div id="log">
                     <p>Loading points...</p>
+                    <p>Camera points...</p>
                     <p>{{ camPts }}</p>
+                    <p>Wand output points...</p>
+                    <p>{{ xyzs }}</p>
+                    <p>Wand outpliers and indices...</p>
+                    <p>{{ o_a_i }}</p>
                 </div>
                 <div id="resultFiles">
-                    <p style="margin-top: 15vh;">No results to download yet</p>
+                    <h2><b>Results</b></h2>
+                    <div class="download">
+                        <p>Graph</p>
+                        <div style="display: flex; justify-content: flex-end">
+                            <button class="button is-dark"><a style="color: white;" href="/static/output.png" download>Download</a></button>
+                        </div>       
+                    </div>
+                    <div class="download">
+                        <p>Points</p>
+                        <div style="display: flex; justify-content: flex-end">
+                            <button class="button is-dark"><a style="color: white;" href="/static/xyzs.csv" download>Download</a></button>
+                        </div>       
+                    </div>
+                    <div class="download">
+                        <p>Outliers</p>
+                        <div style="display: flex; justify-content: flex-end">
+                            <button class="button is-dark"><a style="color: white;" href="/static/outliers.csv" download>Download</a></button>
+                        </div>       
+                    </div>
                 </div>
             </div>
             <div class="column" id="graph">
-                <p style="margin-top: 35vh;">Your graphed output will appear here.</p>
+                {% load static %}
+                <img src="{% static 'output.png' %}">
             </div>
         </div>
     </body>

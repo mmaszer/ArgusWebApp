@@ -1,3 +1,14 @@
+.download {
+    border-radius: 5px;
+    background-color: #dedede;
+    padding: 2%;
+    width: 100%;
+    height: 25%;
+    display:flex;
+    justify-content:space-between;
+    margin-top: 2%;
+}
+
 .message {
     font-weight: 600;
     color: blue;
@@ -61,6 +72,7 @@ h2{
     border-radius: 5px;
     height: 35vh;
     margin-left: 2%;
+    padding: 2%;
 }
 
 #graph {
