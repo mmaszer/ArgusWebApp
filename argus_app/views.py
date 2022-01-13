@@ -18,13 +18,19 @@ import base64
 import urllib
 import csv
 
+'''
+Renders the main wand page where points and other information are entered.
+'''
 def home(request):
     return render(
         request,
         'argus_app/index.html',
     )
 
-
+'''
+Runs the wand processing code and then renders the results page. 
+Is called by clicking the "GO" button on the main page.
+'''
 def run(request):
     form = request.POST
 
@@ -72,6 +78,7 @@ def run(request):
         rpts_file_name = None
         rpts_file = None
 
+    # construct arg object to pass into wand module
     args = {
         'cams': cams_file_path,
         'intrinsics_opt': form['sel1'],
@@ -84,28 +91,23 @@ def run(request):
         'recording_frequency': form['recFreq'],
     }
 
-    print(read_file(cams_file_name))
-    # obj = wandGrapher(None, read_file(ppts_file_name), read_file(uppts_file_name), form['scale'], read_file(rpts_file_name), None, read_file(cams_file_name), None, cams = read_file(cams_file_name))
-    print(request.POST)
-
-    # TODO: check if there is enough info to run
     if has_cams and has_pts:
-        # lets try writing these to a file and outputting with a download button
+        # process points with wand module and save outputs
         xyzs, outliers_and_indicies = go(args)
-        print("here")
-    
-        # save points to file
+
+        # save xyzs to file
         pointsfile = "static/xyzs.csv"
         with open(pointsfile, 'w') as csvfile: 
             csvwriter = csv.writer(csvfile) 
             csvwriter.writerows(xyzs)
 
+        # save outliers to file
         pointsfile = "static/outliers.csv"
         with open(pointsfile, 'w') as csvfile: 
             csvwriter = csv.writer(csvfile) 
             csvwriter.writerows(outliers_and_indicies)
         
-        # do own graphing
+        # do graphing
         xs = xyzs[:,0]
         ys = xyzs[:,1]
         zs = xyzs[:,2]
@@ -115,9 +117,11 @@ def run(request):
 
         ax.scatter(xs, ys, zs)
 
+        # save plot
         plt.savefig("static/output.png")
         plt.close()
 
+        # render results page
         return render(
             request,
             'argus_app/results.html',
@@ -130,88 +134,13 @@ def run(request):
             'o_a_i': outliers_and_indicies,
             },
         )
-
-    # decide what output to render depending on files given
-    case1 = (ppts_file != None) and (uppts_file != None)
-    case2 = (ppts_file != None) and (uppts_file == None)
-    case3 = (ppts_file == None) and (uppts_file != None)
-    case4 = case1 and (rpts_file != None)
-    case5 = case1 and (rpts_file == None)
-    case6 = case2 and (rpts_file != None)
-    case7 = case2 and (rpts_file == None)
-    case8 = case3 and (rpts_file != None)
-    case9 = case3 and (rpts_file == None)
-
-    if (case1 or case5):
-        return render(
-            request,
-            'argus_app/results.html',
-            { 
-            'args': args,
-            'camPts': read_file(file.name),
-            'pPts': read_file(ppts_file.name),
-            'upPts': read_file(uppts_file.name)
-            },
-        )
-    elif (case2 or case7):
-        return render(
-            request,
-            'argus_app/results.html',
-            { 
-            'args': args,
-            'camPts': read_file(file.name),
-            'pPts': read_file(ppts_file.name),
-            },
-        )
-    elif (case3 or case9):
-        return render(
-            request,
-            'argus_app/results.html',
-            { 
-            'args': args,
-            'camPts': read_file(file.name),
-            'upPts': read_file(uppts_file.name)
-            },
-        )
-    elif (case4):
-        return render(
-            request,
-            'argus_app/results.html',
-            { 
-            'args': args,
-            'camPts': read_file(file.name),
-            'pPts': read_file(ppts_file.name),
-            'upPts': read_file(uppts_file.name),
-            'rpts': read_file(rpts_file.name)
-            },
-        )
-    elif (case6):
-        return render(
-            request,
-            'argus_app/results.html',
-            { 
-            'args': args,
-            'camPts': read_file(file.name),
-            'pPts': read_file(ppts_file.name),
-            'rpts': read_file(rpts_file.name)
-            },
-        )
-    elif (case8):
-        return render(
-            request,
-            'argus_app/results.html',
-            { 
-            'args': args,
-            'camPts': read_file(file.name),
-            'upPts': read_file(uppts_file.name),
-            'rpts': read_file(rpts_file.name)
-            },
-        )
-    else:
-        return HttpResponse("Missing cameras or points")
-        # exit function
+   
+    # If some points are missing, generate error message:
+    return HttpResponse("Missing cameras or points")
     
-
+'''
+Helper function to read files from the media storage.
+'''
 def read_file(file_name):
     if file_name:
         path = 'media/' + file_name
