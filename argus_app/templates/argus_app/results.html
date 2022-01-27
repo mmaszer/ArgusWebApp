@@ -43,11 +43,15 @@
                             <button class="button is-dark"><a style="color: white;" href="/static/outliers.csv" download>Download</a></button>
                         </div>       
                     </div>
+                    
                 </div>
             </div>
             <div class="column" id="graph">
                 {% load static %}
                 <img src="{% static 'output.png' %}">
+                <div>
+                    <button class="button is-dark"><a style="color: white;" href="/static/all_results.zip" download>Download All Results as Zip Archive</a></button>
+                </div>  
             </div>
         </div>
     </body>

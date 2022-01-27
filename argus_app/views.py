@@ -17,6 +17,8 @@ import io
 import base64
 import urllib
 import csv
+from zipfile import ZipFile
+
 
 '''
 Renders the main wand page where points and other information are entered.
@@ -120,6 +122,15 @@ def run(request):
         # save plot
         plt.savefig("static/output.png")
         plt.close()
+
+        # create a ZipFile object
+        zipObj = ZipFile('static/all_results.zip', 'w')
+        # Add multiple files to the zip
+        zipObj.write('static/output.png')
+        zipObj.write('static/xyzs.csv')
+        zipObj.write('static/outliers.csv')
+        # close the Zip File
+        zipObj.close()
 
         # render results page
         return render(
