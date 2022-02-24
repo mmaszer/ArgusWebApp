@@ -19,6 +19,9 @@ import urllib
 import csv
 from zipfile import ZipFile
 
+# TODO: option to dowload all results as zip, option to download log output, find out if storage overlaps, database, accounts
+# TODO: get printed output into log
+# TODO: link ref points
 
 '''
 Renders the main wand page where points and other information are entered.
@@ -129,6 +132,7 @@ def run(request):
         zipObj.write('static/output.png')
         zipObj.write('static/xyzs.csv')
         zipObj.write('static/outliers.csv')
+        zipObj.write('media/console.txt')
         # close the Zip File
         zipObj.close()
 
@@ -143,6 +147,7 @@ def run(request):
             'upPts': read_file(uppts_file.name),
             'xyzs': xyzs,
             'o_a_i': outliers_and_indicies,
+            'log': read_file("console.txt")
             },
         )
    

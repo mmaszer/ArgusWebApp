@@ -109,6 +109,8 @@ def preform_wand_caliration(args, unpaired_points, paried_points, ref, cams):
 #if __name__ == '__main__':
 def go(args):
     
+    sys.stdout = open("media/console.txt", "w")
+
     #args = parser.parse_args()
     print('Loading points...')
     sys.stdout.flush()
@@ -277,6 +279,8 @@ def go(args):
                 ref[row_index] = new_row
 
         preform_wand_caliration(args, unpaired_points, paried_points, ref, wand_interpretable_cams)
+
+        sys.stdout.close()
 
 
 #else:
