@@ -19,9 +19,9 @@ import urllib
 import csv
 from zipfile import ZipFile
 
-# TODO: option to dowload all results as zip, option to download log output, find out if storage overlaps, database, accounts
-# TODO: get printed output into log
 # TODO: link ref points
+
+# TODO: make login the index
 
 '''
 Renders the main wand page where points and other information are entered.

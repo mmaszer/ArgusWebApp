@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>Login</title>
+        {% load static %}
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+        <link  type='text/css' rel="stylesheet" href="{% static 'argus_app/registration.css' %}"/>  
+    </head>
+
+    <body>
+        <div id="login">
+            <div class="banner"><h1>Welcome to Argus</h1></div>
+            <form method="post">
+              {% csrf_token %}
+              {{ form.as_p }}
+              <button type="submit" class="longbutton">Log In</button>
+            </form>
+            <a href="/accounts/signup">Don't have an account? Create one.</a>
+            <br>
+        </div>  
+    </body>
+</html>

@@ -9,13 +9,27 @@
         <script defer src="https://use.fontawesome.com/releases/v5.14.0/js/all.js"></script>
     </head>
     <body>
-        <!--<span class="message">Hello, there {{ name }}!</span> It's {{ date | date:'l, d F, Y' }} at {{ date | time:'H:i:s' }}.-->
-        <div id="title">
+        <!--<div id="title">
             <h1>Argus-Wand</h1>
-        </div>     
-        <form action={% url 'run' %} method="POST" enctype="multipart/form-data">
+        </div>   -->
+        <nav class="navbar is-fixed-top is-info" role="navigation" aria-label="main navigation">
+            <div class="navbar-brand">
+              <p class="navbar-item" id="navtitle">Argus-Wand</p>
+            </div>
+            <div class="navbar-end">
+                <div class="navbar-item">
+                  <div class="buttons">
+                    <a class="button is-dark" href="{% url 'logout' %}">
+                      Log Out
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </nav>      
+        <form action="{% url 'run' %}" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-            <div class="columns" style="margin-top: 0.5%;">
+            <div class="columns" style="margin-top: 5%;">
                 <div class="column" style="margin-left: 3%;">    
                     <div id="file-js1">
                         <div class="buttons">
